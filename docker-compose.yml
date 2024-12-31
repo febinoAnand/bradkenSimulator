@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+    devicesimulator:
+        container_name: deviceSimulator
+        build:
+            context: ./
+
+        volumes:
+            - ./:/usr/src/app/
+        restart: always
