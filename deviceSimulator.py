@@ -2,9 +2,10 @@ import paho.mqtt.client as mqtt
 import json
 import time
 import threading
+import random
 from datetime import datetime
 
-MQTT_BROKER = "134.209.149.69"
+MQTT_BROKER = "bradkenmqtt.univa.cloud"
 MQTT_PORT = 1883
 MQTT_USERNAME = "admin"
 MQTT_PASSWORD = "admin"
@@ -64,7 +65,66 @@ base_payload_template = {
     "timestamp": int(time.time()),
 }
 
-incremental_step = {key: 0.1 for key in base_payload_template if isinstance(base_payload_template[key], float)}
+
+def generate_random_energy_data(device_token):
+    # Template with dynamic device token and timestamp
+    base_payload_template = {
+        "device_token": device_token,
+        "kW_Tot": round(random.uniform(0, 10), 4),
+        "kW_R": round(random.uniform(0, 10), 4),
+        "kW_Y": round(random.uniform(0, 10), 4),
+        "kW_B": round(random.uniform(0, 10), 4),
+        "Var_Tot": round(random.uniform(0, 5), 4),
+        "PF_Avg": round(random.uniform(0.8, 1), 4),
+        "PF_R": round(random.uniform(0.8, 1), 4),
+        "PF_Y": round(random.uniform(0.8, 1), 4),
+        "PF_B": round(random.uniform(0.8, 1), 4),
+        "VA_Tot": round(random.uniform(0, 15), 4),
+        "VA_R": round(random.uniform(0, 15), 4),
+        "VA_Y": round(random.uniform(0, 15), 4),
+        "VA_B": round(random.uniform(0, 15), 4),
+        "VLL_Avg": round(random.uniform(220, 240), 4),
+        "V_RY": round(random.uniform(220, 240), 4),
+        "V_YB": round(random.uniform(220, 240), 4),
+        "V_BR": round(random.uniform(220, 240), 4),
+        "VLN_Avg": round(random.uniform(220, 240), 4),
+        "V_R": round(random.uniform(220, 240), 4),
+        "V_Y": round(random.uniform(220, 240), 4),
+        "V_B": round(random.uniform(220, 240), 4),
+        "Cu_Aug": round(random.uniform(0, 50), 4),
+        "Cu_R": round(random.uniform(0, 50), 4),
+        "Cu_Y": round(random.uniform(0, 50), 4),
+        "Cu_B": round(random.uniform(0, 50), 4),
+        "Fre_Hz": round(random.uniform(49.5, 50.5), 4),
+        "Wh": round(random.uniform(0, 1000), 4),
+        "Vah": round(random.uniform(0, 1000), 4),
+        "Ind_VARh": round(random.uniform(0, 500), 4),
+        "Cap_VARh": round(random.uniform(0, 500), 4),
+        "VHar_R": round(random.uniform(0, 5), 4),
+        "VHar_Y": round(random.uniform(0, 5), 4),
+        "VHar_B": round(random.uniform(0, 5), 4),
+        "CuHar_R": round(random.uniform(0, 5), 4),
+        "CuHar_Y": round(random.uniform(0, 5), 4),
+        "CuHar_B": round(random.uniform(0, 5), 4),
+        "kWh_R": round(random.uniform(0, 100), 4),
+        "kWh_Y": round(random.uniform(0, 100), 4),
+        "kWh_B": round(random.uniform(0, 100), 4),
+        "kVAh_R": round(random.uniform(0, 100), 4),
+        "kVAh_Y": round(random.uniform(0, 100), 4),
+        "kVAh_B": round(random.uniform(0, 100), 4),
+        "PF_Avg_R": round(random.uniform(0.8, 1), 4),
+        "PF_Avg_Y": round(random.uniform(0.8, 1), 4),
+        "PF_Avg_B": round(random.uniform(0.8, 1), 4),
+        "Cu_Avg_R": round(random.uniform(0, 50), 4),
+        "Cu_Avg_Y": round(random.uniform(0, 50), 4),
+        "Cu_Avg_B": round(random.uniform(0, 50), 4),
+        "timestamp": int(time.time()),
+    }
+    return base_payload_template
+
+
+# incremental_step = {key: 0.1 for key in base_payload_template if isinstance(base_payload_template[key], float)}
+incremental_step = generate_random_energy_data(device_token)
 
 all_machines = [f"test{i}" for i in range(1, 31)]
 
@@ -93,7 +153,7 @@ def simulate_device_for_token(device_token, assigned_machines):
             current_payload = machine_states[machine]
 
             for key in incremental_step.keys():
-                current_payload[key] += incremental_step[key]
+                current_payload[key] = incremental_step[key]
 
             current_payload = update_timestamp(current_payload, idx, base_timestamp)
 
@@ -105,7 +165,7 @@ def simulate_device_for_token(device_token, assigned_machines):
 
             print(f"Device {device_token}, Machine {machine} sent data to topic {topic}: {json_payload}")
 
-        time.sleep(60)
+        time.sleep(180)
 
 def simulate_devices():
     threads = []
