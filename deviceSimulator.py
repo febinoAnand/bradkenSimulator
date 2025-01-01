@@ -10,7 +10,7 @@ MQTT_PORT = 1883
 MQTT_USERNAME = "admin"
 MQTT_PASSWORD = "admin"
 
-device_token = "Test1"
+device_token = "TEST1"
 
 base_payload_template = {
     "device_token": device_token,
@@ -126,7 +126,7 @@ def generate_random_energy_data(device_token):
 # incremental_step = {key: 0.1 for key in base_payload_template if isinstance(base_payload_template[key], float)}
 incremental_step = generate_random_energy_data(device_token)
 
-all_machines = [f"test{i}" for i in range(1, 31)]
+all_machines = [f"TEST_1_{i}" for i in range(1, 31)]
 
 def update_timestamp(payload, machine_index, base_timestamp):
     timestamp = base_timestamp + machine_index
