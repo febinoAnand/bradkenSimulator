@@ -10,7 +10,7 @@ MQTT_PORT = 1883
 MQTT_USERNAME = "admin"
 MQTT_PASSWORD = "admin"
 
-device_token = "TEST1"
+device_token = "TEST"
 
 base_payload_template = {
     "device_token": device_token,
@@ -75,7 +75,7 @@ def generate_random_energy_data(device_token):
         "kW_Y": round(random.uniform(1000, 1000000), 4),
         "kW_B": round(random.uniform(1000, 1000000), 4),
         "Var_Tot": round(random.uniform(1000, 5000000), 4),
-        "PF_Avg": round(random.uniform(0.5, 1), 4),
+        "PF_Avg": round(random.uniform(-0.50, -0.99), 4),
         "PF_R": round(random.uniform(0.5, 1), 4),
         "PF_Y": round(random.uniform(0.5, 1), 4),
         "PF_B": round(random.uniform(0.5, 1), 4),
@@ -96,8 +96,8 @@ def generate_random_energy_data(device_token):
         "Cu_Y": round(random.uniform(0, 50), 4),
         "Cu_B": round(random.uniform(0, 50), 4),
         "Fre_Hz": round(random.uniform(49.5, 50.5), 4),
-        "Wh": round(random.uniform(0, 100000), 4),
-        "Vah": round(random.uniform(0, 100000), 4),
+        "Wh":  (int(time.time()) * 4),
+        "Vah": (int(time.time()) * 6),
         "Ind_VARh": round(random.uniform(0, 50000), 4),
         "Cap_VARh": round(random.uniform(0, 50000), 4),
         "VHar_R": round(random.uniform(0, 20), 4),
@@ -134,7 +134,8 @@ def update_timestamp(payload, machine_index, base_timestamp):
     return payload
 
 def on_message(client, userdata, msg):
-    print(f"Received message from topic {msg.topic}: {msg.payload.decode()}")
+    # print(f"Received message from topic {msg.topic}: {msg.payload.decode()}")
+    pass
 
 def simulate_device_for_token(device_token, assigned_machines):
     client = mqtt.Client()
@@ -150,7 +151,8 @@ def simulate_device_for_token(device_token, assigned_machines):
         base_timestamp = int(time.time())
         
         for idx, machine in enumerate(assigned_machines):
-            current_payload = machine_states[machine]
+            current_payload = {}
+            # current_payload = machine_states[machine]
             incremental_step = generate_random_energy_data(device_token)
             for key in incremental_step.keys():
                 current_payload[key] = incremental_step[key]
