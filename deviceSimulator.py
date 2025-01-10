@@ -3,9 +3,10 @@ import json
 import time
 import threading
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 
-MQTT_BROKER = "bradkenmqtt.univa.cloud"
+
+MQTT_BROKER = "emsmqtt.univa.cloud"
 MQTT_PORT = 1883
 MQTT_USERNAME = "admin"
 MQTT_PASSWORD = "admin"
@@ -65,9 +66,34 @@ base_payload_template = {
     "timestamp": int(time.time()),
 }
 
+class UniqueTimestampGenerator:
+    def __init__(self):
+        self.generated_timestamps = set()
+
+    def random_increment_timestamp(self, timestamp: datetime, min_increment: int = 1, max_increment: int = 60) -> datetime:
+    
+        if min_increment < 0 or max_increment < min_increment:
+            raise ValueError("Invalid increment range: min_increment should be >= 0 and <= max_increment.")
+        
+        # Generate a new unique timestamp
+
+        while True:
+            increment_seconds = random.randint(min_increment, max_increment)
+            new_timestamp = timestamp + timedelta(seconds=increment_seconds)
+            
+            new_timestamp_int = int(new_timestamp.timestamp())
+            if new_timestamp_int not in self.generated_timestamps:
+                self.generated_timestamps.add(new_timestamp_int)
+                return new_timestamp_int
+
 
 def generate_random_energy_data(device_token):
     # Template with dynamic device token and timestamp
+    timestamp_generator = UniqueTimestampGenerator()
+
+    original_timestamp = datetime.now()
+    new_timestamp = timestamp_generator.random_increment_timestamp(original_timestamp, 10, 300)
+
     base_payload_template = {
         "device_token": device_token,
         "kW_Tot": round(random.uniform(1000, 1000000), 4),
@@ -96,8 +122,8 @@ def generate_random_energy_data(device_token):
         "Cu_Y": round(random.uniform(0, 50), 4),
         "Cu_B": round(random.uniform(0, 50), 4),
         "Fre_Hz": round(random.uniform(49.5, 50.5), 4),
-        "Wh":  (int(time.time()) * 4/1000),
-        "Vah": (int(time.time()) * 6/1000),
+        "Wh":  (new_timestamp * 4/1000),
+        "Vah": (new_timestamp * 6/1000),
         "Ind_VARh": round(random.uniform(0, 50000), 4),
         "Cap_VARh": round(random.uniform(0, 50000), 4),
         "VHar_R": round(random.uniform(0, 20), 4),
